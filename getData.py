@@ -5,6 +5,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from threading import Thread, Lock
 import time
+import os
+import platform
 
 app = FastAPI()
 
@@ -14,9 +16,17 @@ last_updated = 0
 cache_lock = Lock()
 UPDATE_INTERVAL = 60 * 10  # 10 minutos
 
+def get_chromedriver_path():
+    if os.getenv("RENDER"):  # Estás en Render
+        return "./bin/chromedriver"
+    elif platform.system() == "Windows":
+        return "chromedriver.exe"  # Asumiendo que está en tu PATH o en el mismo directorio
+    else:
+        return "/usr/local/bin/chromedriver" 
+    
 def get_fear_and_greed():
     url = "https://edition.cnn.com/markets/fear-and-greed"
-    service = Service('chromedriver.exe')
+    service = Service(get_chromedriver_path()) 
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')
     options.add_argument('--no-sandbox')
